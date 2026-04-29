@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { auth } from "../firebase/firebaseConfig";
+import { theme } from "../constants/marketplace-theme";
 
 export default function CreateListing() {
 
@@ -44,7 +45,7 @@ export default function CreateListing() {
         price: trimmedPrice,
       });
 
-      router.replace("/");
+      router.replace("/profile");
     } catch (error) {
       console.error("Error creating listing:", error);
       setErrorMessage("Could not create your listing. Please try again.");
@@ -54,16 +55,24 @@ export default function CreateListing() {
   };
 
   return (
-
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={styles.heroCard}>
+        <Text style={styles.badge}>Post something useful</Text>
+        <Text style={styles.header}>Create Listing</Text>
+        <Text style={styles.subheader}>Add a clear title and a fair price so other students can find it quickly.</Text>
+      </View>
 
       <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Listing details</Text>
 
-        <Text style={styles.header}>Create Listing</Text>
-        <Text style={styles.subheader}>Add an item for other students to see.</Text>
-
+        <Text style={styles.label}>Item title</Text>
         <TextInput
-          placeholder="Item Title"
+          placeholder="Textbook, desk lamp, mini fridge..."
+          placeholderTextColor={theme.colors.mutedText}
           value={title}
           onChangeText={(value) => {
             setTitle(value);
@@ -74,8 +83,10 @@ export default function CreateListing() {
           style={styles.input}
         />
 
+        <Text style={styles.label}>Price</Text>
         <TextInput
-          placeholder="Price ($)"
+          placeholder="50"
+          placeholderTextColor={theme.colors.mutedText}
           value={price}
           onChangeText={(value) => {
             setPrice(value);
@@ -97,77 +108,114 @@ export default function CreateListing() {
           disabled={isSaving}
         >
           {isSaving ? (
-            <ActivityIndicator color="white" />
+            <ActivityIndicator color={theme.colors.white} />
           ) : (
             <Text style={styles.buttonText}>Post Listing</Text>
           )}
         </TouchableOpacity>
-
       </View>
-
-    </View>
-
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-
-  container: {
+  screen: {
     flex: 1,
-    backgroundColor: "#f4f6f8",
+    backgroundColor: theme.colors.background,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "center",
-    padding: 20
+    padding: theme.spacing.lg,
+    gap: theme.spacing.lg,
+  },
+
+  heroCard: {
+    backgroundColor: "#dce9d5",
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.xl,
+    ...theme.shadow,
+  },
+
+  badge: {
+    alignSelf: "flex-start",
+    backgroundColor: theme.colors.white,
+    color: "#355e3b",
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radius.pill,
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: theme.spacing.md,
   },
 
   card: {
-    backgroundColor: "white",
-    padding: 25,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 5
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.xl,
+    borderRadius: theme.radius.lg,
+    ...theme.shadow,
   },
 
   header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8
+    fontSize: 32,
+    fontWeight: "800",
+    color: theme.colors.text,
+    marginBottom: theme.spacing.xs,
   },
 
   subheader: {
-    fontSize: 15,
-    color: "#666",
-    marginBottom: 20,
+    fontSize: 16,
+    lineHeight: 24,
+    color: theme.colors.mutedText,
+  },
+
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: theme.colors.text,
+    marginBottom: theme.spacing.lg,
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: theme.colors.text,
+    marginBottom: theme.spacing.xs,
   },
 
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 14,
-    borderRadius: 8,
-    marginBottom: 15,
+    borderColor: theme.colors.border,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: theme.radius.md,
+    marginBottom: theme.spacing.md,
     fontSize: 16,
-    backgroundColor: "#fafafa"
+    backgroundColor: theme.colors.white,
+    color: theme.colors.text,
   },
 
   errorText: {
-    color: "#b91c1c",
-    marginBottom: 15,
+    color: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
     fontSize: 15,
   },
 
   button: {
-    backgroundColor: "#2563eb",
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: theme.colors.primary,
+    paddingVertical: 16,
+    borderRadius: theme.radius.md,
     alignItems: "center"
   },
 
   buttonText: {
-    color: "white",
+    color: theme.colors.white,
     fontSize: 16,
-    fontWeight: "600"
+    fontWeight: "700"
   }
 
 });

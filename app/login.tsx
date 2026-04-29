@@ -1,132 +1,220 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
+import { theme } from "../constants/marketplace-theme";
 
 export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const login = () => {
+  const login = async () => {
+    if (!email.trim() || !password.trim()) {
+      setErrorMessage("Please enter both your email and password.");
+      return;
+    }
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => router.replace("/"))
-      .catch(err => alert(err.message));
+    try {
+      setIsLoggingIn(true);
+      setErrorMessage("");
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      router.replace("/");
+    } catch (error) {
+      console.error("Error logging in:", error);
+      setErrorMessage("Login failed. Please check your email and password.");
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   return (
-
-    <View style={styles.container}>
-
-      <View style={styles.card}>
-
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={styles.heroCard}>
+        <Text style={styles.badge}>Campus resale</Text>
         <Text style={styles.header}>Student Marketplace</Text>
-        <Text style={styles.subheader}>Login</Text>
-
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-        />
-
-        <TextInput
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-          style={styles.input}
-        />
-
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={login}
-        >
-          <Text style={styles.loginText}>Login</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.registerLink}
-          onPress={() => router.push("/register")}
-        >
-          <Text style={styles.registerText}>
-            Don't have an account? Register
-          </Text>
-        </TouchableOpacity>
-
+        <Text style={styles.subheader}>Sign in to manage your listings and post new items.</Text>
       </View>
 
-    </View>
+      <View style={styles.formCard}>
+        <Text style={styles.sectionTitle}>Welcome back</Text>
 
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          placeholder="you@pace.edu"
+          placeholderTextColor={theme.colors.mutedText}
+          value={email}
+          onChangeText={(value) => {
+            setEmail(value);
+            if (errorMessage) {
+              setErrorMessage("");
+            }
+          }}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          style={styles.input}
+        />
+
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          placeholder="Enter your password"
+          placeholderTextColor={theme.colors.mutedText}
+          secureTextEntry
+          value={password}
+          onChangeText={(value) => {
+            setPassword(value);
+            if (errorMessage) {
+              setErrorMessage("");
+            }
+          }}
+          style={styles.input}
+        />
+
+        {errorMessage ? (
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        ) : null}
+
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={login}
+          disabled={isLoggingIn}
+        >
+          {isLoggingIn ? (
+            <ActivityIndicator color={theme.colors.white} />
+          ) : (
+            <Text style={styles.primaryButtonText}>Login</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => router.push("/register")}
+        >
+          <Text style={styles.secondaryButtonText}>Need an account? Register</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-
-  container: {
+  screen: {
     flex: 1,
-    justifyContent: "center",
-    backgroundColor: "#f4f6f8",
-    padding: 20
+    backgroundColor: theme.colors.background,
   },
 
-  card: {
-    backgroundColor: "white",
-    padding: 25,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 5
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: theme.spacing.lg,
+    gap: theme.spacing.lg,
+  },
+
+  heroCard: {
+    backgroundColor: "#dbe8ff",
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.xl,
+    ...theme.shadow,
+  },
+
+  badge: {
+    alignSelf: "flex-start",
+    backgroundColor: theme.colors.white,
+    color: theme.colors.primaryDark,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radius.pill,
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: theme.spacing.md,
+  },
+
+  formCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.xl,
+    ...theme.shadow,
   },
 
   header: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 6
+    fontSize: 34,
+    fontWeight: "800",
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
   },
 
   subheader: {
-    fontSize: 18,
-    marginBottom: 20,
-    color: "#666"
+    fontSize: 17,
+    lineHeight: 25,
+    color: theme.colors.mutedText,
+  },
+
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: theme.colors.text,
+    marginBottom: theme.spacing.lg,
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: theme.colors.text,
+    marginBottom: theme.spacing.xs,
   },
 
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 14,
-    borderRadius: 8,
-    marginBottom: 15,
+    borderColor: theme.colors.border,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: theme.radius.md,
+    marginBottom: theme.spacing.md,
     fontSize: 16,
-    backgroundColor: "#fafafa"
+    backgroundColor: theme.colors.white,
+    color: theme.colors.text,
   },
 
-  loginButton: {
-    backgroundColor: "#2563eb",
-    padding: 15,
-    borderRadius: 8,
+  errorText: {
+    color: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+    fontSize: 15,
+  },
+
+  primaryButton: {
+    backgroundColor: theme.colors.primary,
+    paddingVertical: 16,
+    borderRadius: theme.radius.md,
     alignItems: "center",
-    marginTop: 5
+    marginTop: theme.spacing.xs,
   },
 
-  loginText: {
-    color: "white",
+  primaryButtonText: {
+    color: theme.colors.white,
     fontSize: 16,
-    fontWeight: "600"
+    fontWeight: "700",
   },
 
-  registerLink: {
-    marginTop: 18,
-    alignItems: "center"
+  secondaryButton: {
+    marginTop: theme.spacing.md,
+    alignItems: "center",
+    paddingVertical: theme.spacing.sm,
   },
 
-  registerText: {
-    color: "#2563eb",
-    fontSize: 15
-  }
-
+  secondaryButtonText: {
+    color: theme.colors.primaryDark,
+    fontSize: 15,
+    fontWeight: "600",
+  },
 });

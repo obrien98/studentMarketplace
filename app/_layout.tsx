@@ -46,7 +46,7 @@ export default function Layout() {
 
   return (
     <Stack screenOptions={{ headerTitleAlign: "center" }}>
-      <Stack.Screen name="index" options={{ title: "Home" }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ title: "Login" }} />
       <Stack.Screen name="register" options={{ title: "Register" }} />
       <Stack.Screen name="create-listing" options={{ title: "Create Listing" }} />
