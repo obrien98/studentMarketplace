@@ -17,6 +17,7 @@ const MAPPING = {
   'house.fill': 'home',
   'magnifyingglass': 'search',
   'person.fill': 'person',
+  'rectangle.portrait.and.arrow.right': 'logout',
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',

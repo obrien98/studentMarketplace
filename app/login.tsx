@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 import { theme } from "../constants/marketplace-theme";
 
 export default function Login() {
-
+  const headerHeight = useHeaderHeight();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -33,75 +34,83 @@ export default function Login() {
   };
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
       style={styles.screen}
-      contentContainerStyle={styles.scrollContent}
-      keyboardShouldPersistTaps="handled"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={headerHeight}
     >
-      <View style={styles.heroCard}>
-        <Text style={styles.badge}>Campus resale</Text>
-        <Text style={styles.header}>Student Marketplace</Text>
-        <Text style={styles.subheader}>Sign in to manage your listings and post new items.</Text>
-      </View>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        <View style={styles.heroCard}>
+          <Text style={styles.badge}>Campus resale</Text>
+          <Text style={styles.header}>Student Marketplace</Text>
+          <Text style={styles.subheader}>Sign in to manage your listings and post new items.</Text>
+        </View>
 
-      <View style={styles.formCard}>
-        <Text style={styles.sectionTitle}>Welcome back</Text>
+        <View style={styles.formCard}>
+          <Text style={styles.sectionTitle}>Welcome back</Text>
 
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          placeholder="you@pace.edu"
-          placeholderTextColor={theme.colors.mutedText}
-          value={email}
-          onChangeText={(value) => {
-            setEmail(value);
-            if (errorMessage) {
-              setErrorMessage("");
-            }
-          }}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          style={styles.input}
-        />
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            placeholder="you@pace.edu"
+            placeholderTextColor={theme.colors.mutedText}
+            value={email}
+            onChangeText={(value) => {
+              setEmail(value);
+              if (errorMessage) {
+                setErrorMessage("");
+              }
+            }}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={styles.input}
+          />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          placeholder="Enter your password"
-          placeholderTextColor={theme.colors.mutedText}
-          secureTextEntry
-          value={password}
-          onChangeText={(value) => {
-            setPassword(value);
-            if (errorMessage) {
-              setErrorMessage("");
-            }
-          }}
-          style={styles.input}
-        />
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            placeholder="Enter your password"
+            placeholderTextColor={theme.colors.mutedText}
+            secureTextEntry
+            value={password}
+            onChangeText={(value) => {
+              setPassword(value);
+              if (errorMessage) {
+                setErrorMessage("");
+              }
+            }}
+            style={styles.input}
+          />
 
-        {errorMessage ? (
-          <Text style={styles.errorText}>{errorMessage}</Text>
-        ) : null}
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
 
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={login}
-          disabled={isLoggingIn}
-        >
-          {isLoggingIn ? (
-            <ActivityIndicator color={theme.colors.white} />
-          ) : (
-            <Text style={styles.primaryButtonText}>Login</Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={login}
+            disabled={isLoggingIn}
+          >
+            {isLoggingIn ? (
+              <ActivityIndicator color={theme.colors.white} />
+            ) : (
+              <Text style={styles.primaryButtonText}>Login</Text>
+            )}
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => router.push("/register")}
-        >
-          <Text style={styles.secondaryButtonText}>Need an account? Register</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => router.push("/register")}
+          >
+            <Text style={styles.secondaryButtonText}>Need an account? Register</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -113,8 +122,10 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     padding: theme.spacing.lg,
+    paddingBottom: theme.spacing.xxl,
+    paddingTop: theme.spacing.xl,
     gap: theme.spacing.lg,
   },
 

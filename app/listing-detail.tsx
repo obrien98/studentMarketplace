@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 
@@ -10,6 +10,7 @@ import { theme } from "../constants/marketplace-theme";
 type Listing = {
   title?: string;
   price?: string;
+  description?: string;
 };
 
 export default function ListingDetail() {
@@ -19,9 +20,11 @@ export default function ListingDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedPrice, setEditedPrice] = useState("");
+  const [editedDescription, setEditedDescription] = useState("");
 
   useEffect(() => {
 
@@ -44,6 +47,7 @@ export default function ListingDetail() {
           setListing(listingData);
           setEditedTitle(listingData.title || "");
           setEditedPrice(listingData.price || "");
+          setEditedDescription(listingData.description || "");
         } else {
           setErrorMessage("This listing does not exist anymore.");
         }
@@ -75,17 +79,61 @@ export default function ListingDetail() {
       return;
     }
 
+    const listingId = id;
+    const confirmDelete = async () => {
+      try {
+        setIsSubmitting(true);
+        setErrorMessage("");
+        setSuccessMessage("");
+
+        await deleteDoc(doc(db, "listings", listingId));
+        goBackToPreviousScreen();
+      } catch (error) {
+        console.error("Error updating listing:", error);
+        setErrorMessage("Could not complete this action. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
     if (!user) {
       setErrorMessage("You need to be logged in to continue.");
+      return;
+    }
+
+    if (isOwner) {
+      Alert.alert(
+        "Delete listing?",
+        "This will remove the listing from your profile.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: () => {
+              confirmDelete();
+            },
+          },
+        ]
+      );
       return;
     }
 
     try {
       setIsSubmitting(true);
       setErrorMessage("");
+      setSuccessMessage("");
 
-      await deleteDoc(doc(db, "listings", id));
-      goBackToPreviousScreen();
+      await deleteDoc(doc(db, "listings", listingId));
+      router.replace({
+        pathname: "/",
+        params: {
+          success: "Listing claimed successfully!",
+        }
+      });
     } catch (error) {
       console.error("Error updating listing:", error);
       setErrorMessage("Could not complete this action. Please try again.");
@@ -100,8 +148,8 @@ export default function ListingDetail() {
       return;
     }
 
-    if (!editedTitle.trim() || !editedPrice.trim()) {
-      setErrorMessage("Please fill in both the title and price.");
+    if (!editedTitle.trim() || !editedPrice.trim() || !editedDescription.trim()) {
+      setErrorMessage("Please fill in the title, price, and description.");
       return;
     }
 
@@ -113,17 +161,21 @@ export default function ListingDetail() {
     try {
       setIsSubmitting(true);
       setErrorMessage("");
+      setSuccessMessage("");
 
       await updateDoc(doc(db, "listings", id), {
         title: editedTitle.trim(),
         price: editedPrice.trim(),
+        description: editedDescription.trim(),
       });
 
       setListing({
         title: editedTitle.trim(),
         price: editedPrice.trim(),
+        description: editedDescription.trim(),
       });
       setIsEditing(false);
+      setSuccessMessage("Listing updated successfully!");
     } catch (error) {
       console.error("Error saving listing:", error);
       setErrorMessage("Could not save your changes. Please try again.");
@@ -196,13 +248,31 @@ export default function ListingDetail() {
               placeholderTextColor={theme.colors.mutedText}
               keyboardType="numeric"
             />
+
+            <Text style={styles.label}>Description</Text>
+            <TextInput
+              value={editedDescription}
+              onChangeText={setEditedDescription}
+              style={[styles.input, styles.descriptionInput]}
+              placeholder="Description"
+              placeholderTextColor={theme.colors.mutedText}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
           </>
         ) : (
           <>
             <Text style={styles.label}>Asking price</Text>
             <Text style={styles.price}>${listing.price}</Text>
+            <Text style={styles.label}>Description</Text>
+            <Text style={styles.descriptionText}>{listing.description || "No description added."}</Text>
           </>
         )}
+
+        {successMessage ? (
+          <Text style={styles.successText}>{successMessage}</Text>
+        ) : null}
 
         {errorMessage ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
@@ -227,7 +297,9 @@ export default function ListingDetail() {
               onPress={() => {
                 setEditedTitle(listing.title || "");
                 setEditedPrice(listing.price || "");
+                setEditedDescription(listing.description || "");
                 setErrorMessage("");
+                setSuccessMessage("");
                 setIsEditing(false);
               }}
             >
@@ -255,6 +327,7 @@ export default function ListingDetail() {
             style={styles.editButton}
             onPress={() => {
               setErrorMessage("");
+              setSuccessMessage("");
               setIsEditing(true);
             }}
           >
@@ -349,11 +422,29 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
 
+  descriptionInput: {
+    minHeight: 120,
+    paddingTop: 16,
+  },
+
   price: {
     fontSize: 36,
     color: theme.colors.primary,
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
     fontWeight: "800",
+  },
+
+  descriptionText: {
+    width: "100%",
+    fontSize: 15,
+    lineHeight: 22,
+    color: theme.colors.text,
+    backgroundColor: theme.colors.white,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
   },
 
   actionButton: {
@@ -420,6 +511,20 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 15,
     color: theme.colors.danger,
+    backgroundColor: theme.colors.dangerSoft,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.sm,
+    textAlign: "center",
+    marginBottom: theme.spacing.md,
+  },
+
+  successText: {
+    width: "100%",
+    fontSize: 15,
+    color: "#166534",
+    backgroundColor: theme.colors.successSoft,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.sm,
     textAlign: "center",
     marginBottom: theme.spacing.md,
   },

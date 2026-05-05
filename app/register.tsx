@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 import { theme } from "../constants/marketplace-theme";
 
 export default function Register() {
-
+  const headerHeight = useHeaderHeight();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -38,75 +39,83 @@ export default function Register() {
   };
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
       style={styles.screen}
-      contentContainerStyle={styles.scrollContent}
-      keyboardShouldPersistTaps="handled"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={headerHeight}
     >
-      <View style={styles.heroCard}>
-        <Text style={styles.badge}>Join the app</Text>
-        <Text style={styles.header}>Sell to other students</Text>
-        <Text style={styles.subheader}>Create an account to post textbooks, furniture, tech, and more.</Text>
-      </View>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        <View style={styles.heroCard}>
+          <Text style={styles.badge}>Join the app</Text>
+          <Text style={styles.header}>Sell to other students</Text>
+          <Text style={styles.subheader}>Create an account to post textbooks, furniture, tech, and more.</Text>
+        </View>
 
-      <View style={styles.formCard}>
-        <Text style={styles.sectionTitle}>Create account</Text>
+        <View style={styles.formCard}>
+          <Text style={styles.sectionTitle}>Create account</Text>
 
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          placeholder="you@pace.edu"
-          placeholderTextColor={theme.colors.mutedText}
-          value={email}
-          onChangeText={(value) => {
-            setEmail(value);
-            if (errorMessage) {
-              setErrorMessage("");
-            }
-          }}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          style={styles.input}
-        />
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            placeholder="you@pace.edu"
+            placeholderTextColor={theme.colors.mutedText}
+            value={email}
+            onChangeText={(value) => {
+              setEmail(value);
+              if (errorMessage) {
+                setErrorMessage("");
+              }
+            }}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={styles.input}
+          />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          placeholder="At least 6 characters"
-          placeholderTextColor={theme.colors.mutedText}
-          secureTextEntry
-          value={password}
-          onChangeText={(value) => {
-            setPassword(value);
-            if (errorMessage) {
-              setErrorMessage("");
-            }
-          }}
-          style={styles.input}
-        />
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            placeholder="At least 6 characters"
+            placeholderTextColor={theme.colors.mutedText}
+            secureTextEntry
+            value={password}
+            onChangeText={(value) => {
+              setPassword(value);
+              if (errorMessage) {
+                setErrorMessage("");
+              }
+            }}
+            style={styles.input}
+          />
 
-        {errorMessage ? (
-          <Text style={styles.errorText}>{errorMessage}</Text>
-        ) : null}
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
 
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={register}
-          disabled={isRegistering}
-        >
-          {isRegistering ? (
-            <ActivityIndicator color={theme.colors.white} />
-          ) : (
-            <Text style={styles.primaryButtonText}>Create Account</Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={register}
+            disabled={isRegistering}
+          >
+            {isRegistering ? (
+              <ActivityIndicator color={theme.colors.white} />
+            ) : (
+              <Text style={styles.primaryButtonText}>Create Account</Text>
+            )}
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => router.push("/login")}
-        >
-          <Text style={styles.secondaryButtonText}>Already have an account? Login</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => router.push("/login")}
+          >
+            <Text style={styles.secondaryButtonText}>Already have an account? Login</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -118,8 +127,10 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     padding: theme.spacing.lg,
+    paddingBottom: theme.spacing.xxl,
+    paddingTop: theme.spacing.xl,
     gap: theme.spacing.lg,
   },
 

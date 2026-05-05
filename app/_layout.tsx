@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { Stack, router, useSegments } from "expo-router";
 
 import { onAuthStateChanged } from "firebase/auth";
@@ -44,13 +44,44 @@ export default function Layout() {
     );
   }
 
+  const renderBackButton = () => (
+    <Pressable
+      onPress={() => {
+        if (router.canGoBack()) {
+          router.back();
+          return;
+        }
+
+        router.replace("/");
+      }}
+      style={styles.backButton}
+    >
+      <Text style={styles.backArrow}>‹</Text>
+      <Text style={styles.backText}>Back</Text>
+    </Pressable>
+  );
+
   return (
     <Stack screenOptions={{ headerTitleAlign: "center" }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "Home" }} />
       <Stack.Screen name="login" options={{ title: "Login" }} />
       <Stack.Screen name="register" options={{ title: "Register" }} />
-      <Stack.Screen name="create-listing" options={{ title: "Create Listing" }} />
-      <Stack.Screen name="listing-detail" options={{ title: "Listing" }} />
+      <Stack.Screen
+        name="create-listing"
+        options={{
+          title: "Create Listing",
+          headerBackVisible: false,
+          headerLeft: renderBackButton,
+        }}
+      />
+      <Stack.Screen
+        name="listing-detail"
+        options={{
+          title: "Listing",
+          headerBackVisible: false,
+          headerLeft: renderBackButton,
+        }}
+      />
     </Stack>
   );
 }
@@ -61,5 +92,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#f4f6f8",
+  },
+
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 6,
+    paddingRight: 8,
+  },
+
+  backArrow: {
+    fontSize: 28,
+    color: "#1f2937",
+    marginRight: 2,
+    lineHeight: 28,
+  },
+
+  backText: {
+    fontSize: 17,
+    color: "#1f2937",
+    fontWeight: "500",
   },
 });

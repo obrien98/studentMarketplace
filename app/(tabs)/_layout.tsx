@@ -40,6 +40,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={26} name="person.fill" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="logout"
+        options={{
+          title: "Logout",
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="rectangle.portrait.and.arrow.right" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

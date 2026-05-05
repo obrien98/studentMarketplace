@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
-import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
 import { theme } from "../../constants/marketplace-theme";
 
@@ -12,13 +11,14 @@ type Listing = {
   id: string;
   title?: string;
   price?: string;
+  description?: string;
 };
 
 export default function Profile() {
+  const { success } = useLocalSearchParams<{ success?: string }>();
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const loadListings = async () => {
     const user = auth.currentUser;
@@ -56,38 +56,12 @@ export default function Profile() {
     loadListings();
   }, []);
 
-  const logout = async () => {
-    try {
-      setIsLoggingOut(true);
-      await signOut(auth);
-      router.replace("/login");
-    } catch (error) {
-      console.error("Error logging out:", error);
-      setErrorMessage("Could not log out right now.");
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.heroCard}>
-        <View style={styles.heroTopRow}>
-          <View style={styles.heroCopy}>
-            <Text style={styles.badge}>Your profile</Text>
-            <Text style={styles.header}>Manage My Listings</Text>
-            <Text style={styles.subheader}>Post new items, open your listings, and make changes when you need to.</Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={logout}
-            disabled={isLoggingOut}
-          >
-            <Text style={styles.logoutText}>
-              {isLoggingOut ? "Logging out..." : "Logout"}
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.heroCopy}>
+          <Text style={styles.header}>Manage your listings</Text>
+          <Text style={styles.subheader}>Post new items, open your listings, and make changes when you need to.</Text>
         </View>
       </View>
 
@@ -107,6 +81,10 @@ export default function Profile() {
 
       {errorMessage ? (
         <Text style={styles.errorText}>{errorMessage}</Text>
+      ) : null}
+
+      {success ? (
+        <Text style={styles.successText}>{success}</Text>
       ) : null}
 
       {isLoading ? (
@@ -144,6 +122,7 @@ export default function Profile() {
               </View>
               <Text style={styles.title}>{item.title}</Text>
               <Text style={styles.price}>${item.price}</Text>
+              <Text style={styles.descriptionText} numberOfLines={2}>{item.description || "No description added."}</Text>
             </TouchableOpacity>
           )}
         />
@@ -156,63 +135,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: theme.spacing.lg,
+    paddingTop: theme.spacing.xxl,
     backgroundColor: theme.colors.background,
   },
 
   heroCard: {
     backgroundColor: "#f8e8d2",
     borderRadius: theme.radius.lg,
-    padding: theme.spacing.xl,
+    padding: theme.spacing.lg,
     marginBottom: theme.spacing.lg,
     ...theme.shadow,
-  },
-
-  heroTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: theme.spacing.sm,
   },
 
   heroCopy: {
     flex: 1,
   },
 
-  badge: {
-    alignSelf: "flex-start",
-    backgroundColor: theme.colors.white,
-    color: "#9a3412",
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.pill,
-    fontSize: 13,
-    fontWeight: "700",
-    marginBottom: theme.spacing.md,
-  },
-
   header: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "800",
     color: theme.colors.text,
     marginBottom: theme.spacing.xs,
+    lineHeight: 30,
   },
 
   subheader: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 22,
     color: theme.colors.mutedText,
-  },
-
-  logoutButton: {
-    backgroundColor: theme.colors.darkButton,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: theme.radius.pill,
-  },
-
-  logoutText: {
-    color: theme.colors.white,
-    fontWeight: "600",
   },
 
   actionRow: {
@@ -252,6 +202,15 @@ const styles = StyleSheet.create({
   errorText: {
     color: theme.colors.danger,
     backgroundColor: theme.colors.dangerSoft,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+    fontSize: 15,
+  },
+
+  successText: {
+    color: "#166534",
+    backgroundColor: theme.colors.successSoft,
     borderRadius: theme.radius.md,
     padding: theme.spacing.sm,
     marginBottom: theme.spacing.md,
@@ -346,5 +305,12 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     marginTop: 10,
     fontWeight: "800",
+  },
+
+  descriptionText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: theme.colors.mutedText,
+    marginTop: theme.spacing.sm,
   },
 });

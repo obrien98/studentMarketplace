@@ -11,16 +11,18 @@ export default function CreateListing() {
 
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   const createListing = async () => {
     const trimmedTitle = title.trim();
     const trimmedPrice = price.trim();
+    const trimmedDescription = description.trim();
     const user = auth.currentUser;
 
-    if (!trimmedTitle || !trimmedPrice) {
-      setErrorMessage("Please fill in both the title and price.");
+    if (!trimmedTitle || !trimmedPrice || !trimmedDescription) {
+      setErrorMessage("Please fill in the title, price, and description.");
       return;
     }
 
@@ -43,9 +45,15 @@ export default function CreateListing() {
       await setDoc(doc(db, "listings", listingId), {
         title: trimmedTitle,
         price: trimmedPrice,
+        description: trimmedDescription,
       });
 
-      router.replace("/profile");
+      router.replace({
+        pathname: "/profile",
+        params: {
+          success: "Listing posted successfully!",
+        }
+      });
     } catch (error) {
       console.error("Error creating listing:", error);
       setErrorMessage("Could not create your listing. Please try again.");
@@ -96,6 +104,23 @@ export default function CreateListing() {
           }}
           keyboardType="numeric"
           style={styles.input}
+        />
+
+        <Text style={styles.label}>Description</Text>
+        <TextInput
+          placeholder="Add a short description with condition, brand, or helpful details."
+          placeholderTextColor={theme.colors.mutedText}
+          value={description}
+          onChangeText={(value) => {
+            setDescription(value);
+            if (errorMessage) {
+              setErrorMessage("");
+            }
+          }}
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+          style={[styles.input, styles.descriptionInput]}
         />
 
         {errorMessage ? (
@@ -194,6 +219,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: theme.colors.white,
     color: theme.colors.text,
+  },
+
+  descriptionInput: {
+    minHeight: 120,
+    paddingTop: 16,
   },
 
   errorText: {
