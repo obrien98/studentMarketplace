@@ -1,0 +1,309 @@
+Project Structure Explanation (Expo Router + Firebase Marketplace App)
+
+This project uses Expo Router for navigation. In Expo Router, the file and folder structure determines how navigation works inside the app. Each .tsx file represents a screen, and special files like _layout.tsx define navigation behavior.
+
+ROOT APP FOLDER
+
+app/
+│
+├── _layout.tsx
+├── login.tsx
+├── register.tsx
+├── create-listing.tsx
+├── listing-detail.tsx
+│
+└── (tabs)/
+    ├── _layout.tsx
+    ├── index.tsx
+    ├── profile.tsx
+    └── logout.tsx
+
+
+--------------------------------------------------
+ROOT _layout.tsx
+--------------------------------------------------
+
+The root _layout.tsx file controls the overall app navigation and authentication flow.
+
+Its responsibilities include:
+- Watching Firebase authentication state
+- Redirecting users to login if they are not authenticated
+- Preventing authenticated users from returning to login/register screens
+- Defining the main navigation stack
+
+This file acts as the “gatekeeper” of the app.
+
+It typically contains:
+- Stack navigation setup
+- Firebase auth listener
+- Redirect logic
+- Loading state while auth is checked
+
+The root layout controls access to:
+- login.tsx
+- register.tsx
+- create-listing.tsx
+- listing-detail.tsx
+- the (tabs) navigation group
+
+
+--------------------------------------------------
+login.tsx
+--------------------------------------------------
+
+This screen allows users to log into the application using Firebase Authentication.
+
+Main responsibilities:
+- Collect email and password
+- Validate user input
+- Authenticate with Firebase
+- Redirect successful users into the app
+
+Typical Firebase function:
+signInWithEmailAndPassword(auth, email, password)
+
+After successful login:
+router.replace("/")
+
+This screen is part of the authentication system.
+
+
+--------------------------------------------------
+register.tsx
+--------------------------------------------------
+
+This screen allows new users to create accounts.
+
+Main responsibilities:
+- Collect email and password
+- Validate inputs
+- Create Firebase account
+- Redirect user after signup
+
+Typical Firebase function:
+createUserWithEmailAndPassword(auth, email, password)
+
+Validation usually includes:
+- required fields
+- password length checks
+
+This screen is also part of the authentication system.
+
+
+--------------------------------------------------
+create-listing.tsx
+--------------------------------------------------
+
+This screen allows authenticated users to create marketplace listings.
+
+Users can enter:
+- title
+- price
+- description
+
+The listing is then stored in Firebase Firestore.
+
+Typical Firestore logic:
+setDoc(doc(db, "listings", listingId), {
+    title,
+    price,
+    description
+})
+
+The listing is saved inside the Firestore "listings" collection.
+
+After creation:
+router.replace("/profile")
+
+This screen represents the “Create Post” functionality of the app.
+
+
+--------------------------------------------------
+listing-detail.tsx
+--------------------------------------------------
+
+This screen displays a single marketplace listing.
+
+Responsibilities:
+- Load a specific listing from Firestore
+- Display listing details
+- Allow editing
+- Allow deletion
+
+The listing ID is typically passed through navigation parameters:
+useLocalSearchParams()
+
+Example:
+listing-detail?id=123
+
+Typical Firestore functions:
+- getDoc()
+- updateDoc()
+- deleteDoc()
+
+This screen handles viewing and managing individual listings.
+
+
+--------------------------------------------------
+(tabs) FOLDER
+--------------------------------------------------
+
+The (tabs) folder is a special Expo Router route group.
+
+The parentheses are important:
+(tabs)
+
+This does NOT become part of the URL/path.
+
+Instead, it is used only for organization and navigation structure.
+
+This folder contains all screens that belong to the bottom tab navigation section of the app.
+
+
+--------------------------------------------------
+(tabs)/_layout.tsx
+--------------------------------------------------
+
+This file defines the bottom tab navigator.
+
+It controls:
+- tab navigation
+- tab labels
+- icons
+- tab behavior
+
+Typical structure:
+<Tabs>
+    <Tabs.Screen name="index" />
+    <Tabs.Screen name="profile" />
+    <Tabs.Screen name="logout" />
+</Tabs>
+
+This creates tabs such as:
+- Home
+- Profile
+- Logout
+
+This layout only controls screens inside the (tabs) folder.
+
+
+--------------------------------------------------
+(tabs)/index.tsx
+--------------------------------------------------
+
+This is the default screen inside the tabs navigation.
+
+In Expo Router:
+index.tsx = default route
+
+This screen is typically the marketplace feed/home page.
+
+Responsibilities:
+- Load all listings from Firestore
+- Display marketplace posts
+- Navigate to listing-detail screens
+
+Typical Firestore logic:
+getDocs(collection(db, "listings"))
+
+This acts as the main “Home Feed” of the app.
+
+
+--------------------------------------------------
+(tabs)/profile.tsx
+--------------------------------------------------
+
+This screen displays the logged-in user’s information and listings.
+
+Responsibilities may include:
+- Display user email/account info
+- Load user-created listings
+- Navigate to create-listing screen
+
+Typical Firebase usage:
+auth.currentUser
+
+Typical Firestore query:
+where("userId", "==", currentUser.uid)
+
+This screen represents the user dashboard/profile area.
+
+
+--------------------------------------------------
+(tabs)/logout.tsx
+--------------------------------------------------
+
+This screen signs the user out of the app.
+
+Typical Firebase function:
+signOut(auth)
+
+After logout:
+router.replace("/login")
+
+Some apps implement logout as:
+- a button
+- or an entire screen/tab
+
+In this project it appears to be implemented as a tab.
+
+
+--------------------------------------------------
+OVERALL APPLICATION FLOW
+--------------------------------------------------
+
+1. App launches
+2. Root _layout.tsx checks Firebase authentication
+3. User is redirected to:
+   - login/register if not authenticated
+   - tabs navigation if authenticated
+4. Inside tabs:
+   - Home feed displays listings
+   - Profile displays user data
+   - Logout signs out user
+5. Users can:
+   - create listings
+   - view listings
+   - edit/delete listings
+
+
+--------------------------------------------------
+TECHNOLOGIES USED
+--------------------------------------------------
+
+Frontend:
+- React Native
+- Expo
+- Expo Router
+- TypeScript
+
+Backend:
+- Firebase Authentication
+- Firebase Firestore
+
+Navigation:
+- Stack navigation
+- Bottom tab navigation
+
+Database:
+- Firestore collections/documents
+
+
+--------------------------------------------------
+WHY THIS STRUCTURE IS USED
+--------------------------------------------------
+
+Expo Router uses filesystem-based routing.
+
+This means:
+- folders organize navigation groups
+- files represent screens
+- _layout.tsx files define navigators
+
+Benefits:
+- cleaner organization
+- easier navigation setup
+- less manual configuration
+- scalable architecture
+
+This structure is commonly used in modern Expo/React Native applications.
