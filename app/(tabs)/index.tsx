@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
 import { auth } from "../../firebase/firebaseConfig";
 import { theme } from "../../constants/marketplace-theme";
@@ -20,40 +20,43 @@ export default function BrowseListings() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const loadListings = async () => {
+  useEffect(() => {
     const user = auth.currentUser;
 
     if (!user) {
+      setListings([]);
+      setIsLoading(false);
       return;
     }
 
-    try {
-      setIsLoading(true);
-      setErrorMessage("");
+    setIsLoading(true);
+    setErrorMessage("");
 
-      const querySnapshot = await getDocs(collection(db, "listings"));
-      const data: Listing[] = [];
+    const unsubscribe = onSnapshot(
+      collection(db, "listings"),
+      (snapshot) => {
+        const data: Listing[] = [];
 
-      querySnapshot.forEach((doc) => {
-        const listingData = { id: doc.id, ...doc.data() } as Listing;
-        const belongsToCurrentUser = listingData.id.startsWith(`${user.uid}_`);
+        snapshot.forEach((doc) => {
+          const listingData = { id: doc.id, ...doc.data() } as Listing;
+          const belongsToCurrentUser = listingData.id.startsWith(`${user.uid}_`);
 
-        if (!belongsToCurrentUser) {
-          data.push(listingData);
-        }
-      });
+          if (!belongsToCurrentUser) {
+            data.push(listingData);
+          }
+        });
 
-      setListings(data);
-    } catch (error) {
-      console.error("Error loading other listings:", error);
-      setErrorMessage("Could not load other listings right now.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        setListings(data);
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error("Error loading other listings:", error);
+        setErrorMessage("Could not load other listings right now.");
+        setIsLoading(false);
+      }
+    );
 
-  useEffect(() => {
-    loadListings();
+    return unsubscribe;
   }, []);
 
   return (
@@ -84,6 +87,8 @@ export default function BrowseListings() {
         </View>
       ) : (
         <FlatList
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
           data={listings}
           keyExtractor={(item) => item.id}
           ListEmptyComponent={
@@ -200,6 +205,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  list: {
+    flex: 1,
+  },
+
+  listContent: {
+    paddingBottom: theme.spacing.xxl,
   },
 
   loadingText: {

@@ -2,7 +2,7 @@ import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 
-import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { auth } from "../firebase/firebaseConfig";
 import { theme } from "../constants/marketplace-theme";
@@ -27,40 +27,43 @@ export default function ListingDetail() {
   const [editedDescription, setEditedDescription] = useState("");
 
   useEffect(() => {
+    if (typeof id !== "string") {
+      setErrorMessage("This listing could not be found.");
+      setIsLoading(false);
+      return;
+    }
 
-    const loadListing = async () => {
-      if (typeof id !== "string") {
-        setErrorMessage("This listing could not be found.");
-        setIsLoading(false);
-        return;
-      }
+    setIsLoading(true);
+    setErrorMessage("");
 
-      try {
-        setIsLoading(true);
-        setErrorMessage("");
-
-        const docRef = doc(db, "listings", id);
-        const snap = await getDoc(docRef);
-
-        if (snap.exists()) {
-          const listingData = snap.data() as Listing;
+    const unsubscribe = onSnapshot(
+      doc(db, "listings", id),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const listingData = snapshot.data() as Listing;
           setListing(listingData);
-          setEditedTitle(listingData.title || "");
-          setEditedPrice(listingData.price || "");
-          setEditedDescription(listingData.description || "");
+
+          if (!isEditing) {
+            setEditedTitle(listingData.title || "");
+            setEditedPrice(listingData.price || "");
+            setEditedDescription(listingData.description || "");
+          }
         } else {
+          setListing(null);
           setErrorMessage("This listing does not exist anymore.");
         }
-      } catch (error) {
+
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error("Error loading listing:", error);
         setErrorMessage("Could not load this listing right now.");
-      } finally {
         setIsLoading(false);
       }
-    };
+    );
 
-    loadListing();
-
-  }, [id]);
+    return unsubscribe;
+  }, [id, isEditing]);
 
   const goBackToPreviousScreen = () => {
     if (source === "browse") {
