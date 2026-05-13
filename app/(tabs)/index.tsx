@@ -14,6 +14,7 @@ type Listing = {
   title?: string;
   price?: string;
   description?: string;
+  ownerEmail?: string;
 };
 
 export default function BrowseListings() {
@@ -119,6 +120,7 @@ export default function BrowseListings() {
               </View>
               <Text style={styles.title}>{item.title}</Text>
               <Text style={styles.price}>${item.price}</Text>
+              <Text style={styles.ownerText}>Posted by: {item.ownerEmail || "Unknown user"}</Text>
               <Text style={styles.descriptionText} numberOfLines={2}>{item.description || "No description added."}</Text>
             </TouchableOpacity>
           )}
@@ -306,5 +308,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: theme.colors.mutedText,
     marginTop: theme.spacing.sm,
+  },
+
+  ownerText: {
+    fontSize: 13,
+    color: theme.colors.primaryDark,
+    marginTop: theme.spacing.sm,
+    fontWeight: "600",
   },
 });

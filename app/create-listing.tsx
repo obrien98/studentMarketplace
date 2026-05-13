@@ -46,6 +46,7 @@ export default function CreateListing() {
         title: trimmedTitle,
         price: trimmedPrice,
         description: trimmedDescription,
+        ownerEmail: user.email || "Unknown user",
       });
 
       router.replace({
