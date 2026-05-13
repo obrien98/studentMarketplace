@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Student Marketplace Dependency Report</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 48px;
+      color: #1f2937;
+      line-height: 1.45;
+    }
+
+    h1, h2, h3 {
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0 28px 0;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f4f6;
+    }
+
+    .note {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 12px 14px;
+      margin: 20px 0;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <h1>Student Marketplace Dependency Report</h1>
+
+  <p>This document lists the project dependencies for the <strong>student-marketplace</strong> app.</p>
+
+  <div class="note">
+    <strong>Important note about installation order:</strong>
+    The exact historical order each package was installed is not stored in a reliable way in this repository.
+    For presentation purposes, this report uses the current order shown in <code>package.json</code>, which is the most defensible order we can infer from the project files.
+  </div>
+
+  <h2>Install Command Used By This Project</h2>
+  <p><code>npm install</code></p>
+
+  <h2>Production Dependencies</h2>
+  <p class="small">These are packages the app needs to run.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Install Order</th>
+        <th>Package</th>
+        <th>Version</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>@expo/vector-icons</td><td>^15.0.3</td><td>Icon library used in the UI and tab bar.</td></tr>
+      <tr><td>2</td><td>@react-navigation/bottom-tabs</td><td>^7.4.0</td><td>Bottom tab navigation for Browse, Profile, and Logout.</td></tr>
+      <tr><td>3</td><td>@react-navigation/elements</td><td>^2.6.3</td><td>Navigation UI helpers such as pressable elements and header helpers.</td></tr>
+      <tr><td>4</td><td>@react-navigation/native</td><td>^7.1.33</td><td>Core React Navigation package.</td></tr>
+      <tr><td>5</td><td>@react-navigation/native-stack</td><td>^7.14.4</td><td>Native stack navigation for screens like login, detail, and create listing.</td></tr>
+      <tr><td>6</td><td>expo</td><td>~54.0.33</td><td>Main Expo framework for building the app.</td></tr>
+      <tr><td>7</td><td>expo-constants</td><td>~18.0.13</td><td>Provides system and app constants.</td></tr>
+      <tr><td>8</td><td>expo-font</td><td>~14.0.11</td><td>Font loading support.</td></tr>
+      <tr><td>9</td><td>expo-haptics</td><td>~15.0.8</td><td>Haptic feedback for tab presses on iOS.</td></tr>
+      <tr><td>10</td><td>expo-image</td><td>~3.0.11</td><td>Image rendering support.</td></tr>
+      <tr><td>11</td><td>expo-linking</td><td>~8.0.11</td><td>Deep linking support.</td></tr>
+      <tr><td>12</td><td>expo-router</td><td>~6.0.23</td><td>File-based routing system used in the app.</td></tr>
+      <tr><td>13</td><td>expo-splash-screen</td><td>~31.0.13</td><td>Controls splash screen behavior.</td></tr>
+      <tr><td>14</td><td>expo-status-bar</td><td>~3.0.9</td><td>Customizes the device status bar.</td></tr>
+      <tr><td>15</td><td>expo-symbols</td><td>~1.0.8</td><td>Symbol support used by icon helpers.</td></tr>
+      <tr><td>16</td><td>expo-system-ui</td><td>~6.0.9</td><td>System UI customization support.</td></tr>
+      <tr><td>17</td><td>expo-updates</td><td>~29.0.16</td><td>Supports Expo updates and runtime versioning.</td></tr>
+      <tr><td>18</td><td>expo-web-browser</td><td>~15.0.10</td><td>Web browser integration support.</td></tr>
+      <tr><td>19</td><td>firebase</td><td>^12.10.0</td><td>Backend service for authentication and Firestore database.</td></tr>
+      <tr><td>20</td><td>react</td><td>19.1.0</td><td>Core React library.</td></tr>
+      <tr><td>21</td><td>react-dom</td><td>19.1.0</td><td>React DOM support for web builds.</td></tr>
+      <tr><td>22</td><td>react-native</td><td>0.81.5</td><td>Core React Native framework.</td></tr>
+      <tr><td>23</td><td>react-native-gesture-handler</td><td>~2.28.0</td><td>Gesture support for navigation and interactions.</td></tr>
+      <tr><td>24</td><td>react-native-reanimated</td><td>~4.1.1</td><td>Animation support for React Native.</td></tr>
+      <tr><td>25</td><td>react-native-safe-area-context</td><td>~5.6.0</td><td>Safe area handling for devices with notches and rounded corners.</td></tr>
+      <tr><td>26</td><td>react-native-screens</td><td>~4.16.0</td><td>Improves screen rendering and navigation performance.</td></tr>
+      <tr><td>27</td><td>react-native-web</td><td>~0.21.0</td><td>Allows the React Native app to run on the web.</td></tr>
+      <tr><td>28</td><td>react-native-worklets</td><td>0.5.1</td><td>Supports worklet execution used by newer animation tooling.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Development Dependencies</h2>
+  <p class="small">These are packages mainly used for development, linting, and TypeScript support.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Install Order</th>
+        <th>Package</th>
+        <th>Version</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>29</td><td>@types/react</td><td>~19.1.0</td><td>Type definitions for React.</td></tr>
+      <tr><td>30</td><td>eslint</td><td>^9.25.0</td><td>Linting and code quality checks.</td></tr>
+      <tr><td>31</td><td>eslint-config-expo</td><td>~10.0.0</td><td>Expo-specific ESLint configuration.</td></tr>
+      <tr><td>32</td><td>typescript</td><td>~5.9.2</td><td>TypeScript compiler and type checking.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Summary</h2>
+  <p>Total dependencies documented: <strong>32</strong></p>
+  <p>Production dependencies: <strong>28</strong></p>
+  <p>Development dependencies: <strong>4</strong></p>
+
+  <p class="small">
+    Source used: <code>student-marketplace/package.json</code><br />
+    Report generated on May 13, 2026.
+  </p>
+</body>
+</html>

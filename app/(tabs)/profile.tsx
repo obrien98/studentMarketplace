@@ -1,3 +1,5 @@
+// This screen displays the logged-in user’s information and listings.
+
 import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -39,7 +41,7 @@ export default function Profile() {
 
         snapshot.forEach((doc) => {
           const listingData = { id: doc.id, ...doc.data() } as Listing;
-          const belongsToCurrentUser = listingData.id.startsWith(`${user.uid}_`);
+          const belongsToCurrentUser = listingData.id.startsWith(`${user.uid}_`); // only display a user's own posts
 
           if (belongsToCurrentUser) {
             data.push(listingData);

@@ -1,3 +1,5 @@
+// This is the default screen inside the tabs navigation
+
 import { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -38,8 +40,8 @@ export default function BrowseListings() {
         const data: Listing[] = [];
 
         snapshot.forEach((doc) => {
-          const listingData = { id: doc.id, ...doc.data() } as Listing;
-          const belongsToCurrentUser = listingData.id.startsWith(`${user.uid}_`);
+          const listingData = { id: doc.id, ...doc.data() } as Listing; 
+          const belongsToCurrentUser = listingData.id.startsWith(`${user.uid}_`); // dont show a user their own posts
 
           if (!belongsToCurrentUser) {
             data.push(listingData);

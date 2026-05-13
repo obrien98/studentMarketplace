@@ -1,3 +1,9 @@
+// - Collect email and password
+// - Validate inputs
+// - Create Firebase account
+// - Redirect user after signup
+
+
 import { useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
